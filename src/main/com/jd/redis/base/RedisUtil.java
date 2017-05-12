@@ -1,8 +1,14 @@
 package com.jd.redis.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisShardInfo;
+import redis.clients.jedis.ShardedJedis;
+import redis.clients.jedis.ShardedJedisPool;
 
 public class RedisUtil {
     //Redis服务器IP
@@ -30,6 +36,8 @@ public class RedisUtil {
     private static boolean TEST_ON_BORROW = true;
     
     private static JedisPool jedisPool = null;
+    
+    private static ShardedJedisPool pool;
     
     /**
      * 初始化Redis连接池
@@ -74,4 +82,66 @@ public class RedisUtil {
             jedisPool.returnResource(jedis);
         }
     }
+    
+    
+    /**
+     * 创建分片对象
+     * @return
+     */
+        public static ShardedJedis createShardJedis() {
+            
+            //建立服务器列表
+            List<JedisShardInfo> shards = new ArrayList<JedisShardInfo>();
+            
+            //添加第一台服务器信息
+            JedisShardInfo si = new JedisShardInfo("localhost", 6379);
+            si.setPassword("123");
+            shards.add(si);
+            
+            //添加第二台服务器信息
+            si = new JedisShardInfo("localhost", 6399);
+            si.setPassword("123");
+            shards.add(si);
+            //建立分片连接对象
+            ShardedJedis jedis = new ShardedJedis(shards);        
+            
+            //建立分片连接对象,并指定Hash算法
+            //ShardedJedis jedis = new ShardedJedis(shards,selfHash);
+            return jedis;
+        }
+    
+    
+    
+    
+    
+        private static void createPool() {
+            List<JedisShardInfo> shards = new ArrayList<JedisShardInfo>();
+            JedisShardInfo si = new JedisShardInfo("localhost", 6379);
+            si.setPassword("123");
+            shards.add(si);
+            si = new JedisShardInfo("localhost", 6399);
+            si.setPassword("123");
+            shards.add(si);
+            pool = new ShardedJedisPool(new JedisPoolConfig(), shards);
+        }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

@@ -57,7 +57,7 @@ public class RedisLock {
 
     //key不存在时 则返回1  存在时则返回0
     private boolean setNX(final String key, final String value) {
-        return jedis.setnx(key,value) == 1 ? false : true;
+        return jedis.setnx(key,value) == 1 ? true : false;
     }
 
     /**
@@ -79,8 +79,8 @@ public class RedisLock {
             long expires = System.currentTimeMillis() + expireMsecs + 1;
             String expiresStr = String.valueOf(expires); //锁到期时间
             
-            //key 为lockKey  value为到期时间
             if (this.setNX(lockKey, expiresStr)) {
+            	
                 locked = true;
                 return true;
             }
